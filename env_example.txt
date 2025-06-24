@@ -1,0 +1,18 @@
+# AI-Augmented Web Pentesting Assistant Environment Variables
+# Copy this file to .env and fill in your actual values
+
+# OpenAI API Configuration
+OPENAI_API_KEY=your_openai_api_key_here
+
+# ZAP Configuration (optional - uses defaults if not set)
+ZAP_PROXY_HOST=127.0.0.1
+ZAP_PROXY_PORT=8080
+ZAP_API_KEY=
+
+# Report Configuration (optional)
+REPORT_AUTHOR=Your Security Team
+REPORT_TITLE=AI-Augmented Web Application Security Assessment
+
+# Logging Configuration (optional)
+LOG_LEVEL=INFO
+LOG_FILE=autopent.log 
