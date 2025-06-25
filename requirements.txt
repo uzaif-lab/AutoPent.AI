@@ -1,51 +1,32 @@
-# AI-Augmented Web Pentesting Assistant Dependencies
+# AutoPent.AI - Web Application Dependencies
+
+# Web Framework
+flask==2.3.3
+flask-cors==4.0.0
 
 # Core scanning and security
 requests==2.31.0
-
-# AI and OpenAI integration
-openai==1.3.0
-streamlit==1.28.0
-
-# PDF generation and reporting
-reportlab==4.0.4
-matplotlib==3.7.2
-pandas==2.0.3
-
-# Web UI
-streamlit-option-menu>=0.3.0
-
-# Data processing
-jinja2>=3.1.0
 beautifulsoup4==4.12.2
 lxml>=4.9.0
 
+# AI Integration (Optional)
+openai==1.3.0
+
+# PDF generation and reporting
+reportlab==4.0.4
+
+# Data processing
+pandas==2.0.3
+jinja2>=3.1.0
+
 # Utilities
-rich==13.6.0
-click>=8.1.0
-pydantic>=2.5.0
-
-# Date and time handling
 python-dateutil==2.8.2
-
-# JSON and XML processing
-xmltodict>=0.13.0
-jsonschema>=4.20.0
-
-# HTTP and networking
-httpx>=0.25.0
-urllib3>=2.1.0
-
-# Configuration
 pyyaml>=6.0.0
-
-# Plotting for reports
-plotly==5.17.0
-
-# Additional dependencies
 python-dotenv==1.0.0
+
+# Security and networking
 cryptography==41.0.7
 dnspython==2.4.2
 python-whois==0.8.0
-aiohttp==3.9.0
-asyncio==3.4.3 
+httpx>=0.25.0
+urllib3>=2.1.0 

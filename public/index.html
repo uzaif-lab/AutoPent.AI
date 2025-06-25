@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoPent.AI - AI-Powered Security Scanner</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>AutoPent.AI</span>
+                </div>
+                <nav class="nav-links">
+                    <a href="#scanner" class="nav-link active" data-tab="scanner">
+                        <i class="fas fa-search"></i> Scanner
+                    </a>
+                    <a href="#results" class="nav-link" data-tab="results">
+                        <i class="fas fa-chart-bar"></i> Results
+                    </a>
+                    <a href="#reports" class="nav-link" data-tab="reports">
+                        <i class="fas fa-file-pdf"></i> Reports
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Scanner Tab -->
+            <section id="scanner" class="tab-content active">
+                <div class="hero">
+                    <h1>🛡️ AI-Powered Security Scanner</h1>
+                    <p>Comprehensive security assessment with AI-driven analysis and professional reports</p>
+                </div>
+
+                <div class="scanner-form">
+                    <div class="form-card">
+                        <h3><i class="fas fa-bullseye"></i> Target Configuration</h3>
+                        <form id="scanForm">
+                            <div class="form-group">
+                                <label for="targetUrl">Target URL</label>
+                                <input type="url" id="targetUrl" placeholder="https://example.com" required>
+                                <small>Enter the website URL you want to scan for security vulnerabilities</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="includeAI">
+                                    <span class="checkmark"></span>
+                                    Enable AI Analysis
+                                </label>
+                                <small>Get detailed AI-powered vulnerability analysis and recommendations</small>
+                            </div>
+
+                            <button type="submit" class="btn-primary" id="startScanBtn">
+                                <i class="fas fa-play"></i>
+                                Start Security Scan
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="features-card">
+                        <h3><i class="fas fa-check-circle"></i> Scan Features</h3>
+                        <ul class="features-list">
+                            <li><i class="fas fa-shield"></i> HTTP Security Headers Analysis</li>
+                            <li><i class="fas fa-lock"></i> SSL/TLS Certificate Validation</li>
+                            <li><i class="fas fa-globe"></i> Domain Information Gathering</li>
+                            <li><i class="fas fa-search"></i> Content Security Analysis</li>
+                            <li><i class="fas fa-bug"></i> Common Vulnerability Detection</li>
+                            <li><i class="fas fa-robot"></i> AI-Powered Risk Assessment</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Scan Progress -->
+                <div id="scanProgress" class="scan-progress hidden">
+                    <div class="progress-card">
+                        <h3><i class="fas fa-cog fa-spin"></i> Scan in Progress</h3>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <p id="progressText">Initializing scan...</p>
+                        <div class="progress-steps">
+                            <div class="step active" id="step1">🔍 Scanning</div>
+                            <div class="step" id="step2">📊 Parsing</div>
+                            <div class="step" id="step3">🤖 AI Analysis</div>
+                            <div class="step" id="step4">📄 Report</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Tab -->
+            <section id="results" class="tab-content">
+                <div class="results-header">
+                    <h2><i class="fas fa-chart-bar"></i> Security Analysis Results</h2>
+                    <p>Detailed vulnerability findings and risk assessment</p>
+                </div>
+
+                <div id="noResults" class="no-results">
+                    <i class="fas fa-chart-bar"></i>
+                    <h3>No scan results available</h3>
+                    <p>Run a security scan to see detailed vulnerability analysis</p>
+                </div>
+
+                <div id="resultsContent" class="results-content hidden">
+                    <!-- Key Metrics -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon high">🔴</div>
+                            <div class="metric-info">
+                                <h4 id="highRiskCount">0</h4>
+                                <p>High Risk</p>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon medium">🟡</div>
+                            <div class="metric-info">
+                                <h4 id="mediumRiskCount">0</h4>
+                                <p>Medium Risk</p>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon low">🟢</div>
+                            <div class="metric-info">
+                                <h4 id="lowRiskCount">0</h4>
+                                <p>Low Risk</p>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon info">🔵</div>
+                            <div class="metric-info">
+                                <h4 id="infoCount">0</h4>
+                                <p>Informational</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vulnerabilities Table -->
+                    <div class="vulnerabilities-section">
+                        <h3><i class="fas fa-bug"></i> Vulnerability Details</h3>
+                        <div class="table-container">
+                            <table id="vulnerabilitiesTable" class="vulnerabilities-table">
+                                <thead>
+                                    <tr>
+                                        <th>Vulnerability</th>
+                                        <th>Risk Level</th>
+                                        <th>Category</th>
+                                        <th>Confidence</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vulnerabilitiesBody">
+                                    <!-- Populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Tab -->
+            <section id="reports" class="tab-content">
+                <div class="reports-header">
+                    <h2><i class="fas fa-file-pdf"></i> Security Reports</h2>
+                    <p>Download professional security assessment reports</p>
+                </div>
+
+                <div id="noReports" class="no-results">
+                    <i class="fas fa-file-pdf"></i>
+                    <h3>No reports available</h3>
+                    <p>Complete a security scan to generate downloadable reports</p>
+                </div>
+
+                <div id="reportsContent" class="reports-content hidden">
+                    <div class="current-report">
+                        <h3><i class="fas fa-download"></i> Latest Report</h3>
+                        <div class="report-card" id="latestReport">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="recent-scans">
+                        <h3><i class="fas fa-history"></i> Recent Scans</h3>
+                        <div id="recentScansList" class="scans-list">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 AutoPent.AI - AI-Powered Security Scanner</p>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner">
+            <i class="fas fa-cog fa-spin"></i>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 
