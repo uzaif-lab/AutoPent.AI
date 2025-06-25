@@ -19,11 +19,12 @@ try:
     from ai_module.summarize import VulnerabilityAnalyzer
     from config import config
     print("✅ All modules imported successfully")
-except ImportError as e:
-    print(f"❌ Import error: {e}")
+except ImportError as import_error:
+    error_msg = str(import_error)
+    print(f"❌ Import error: {error_msg}")
     # Create fallback functions
     def scan_website(url):
-        return {'error': f'Scanner module not available: {e}'}
+        return {'error': f'Scanner module not available: {error_msg}'}
     def parse_zap_report(file):
         return None
     def generate_pentest_report(data, ai, url):
