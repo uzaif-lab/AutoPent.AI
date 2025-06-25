@@ -11,12 +11,31 @@ import traceback
 # Add the project root to Python path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Import existing modules
-from scanner.run_zap_scan import scan_website
-from parser.zap_parser import parse_zap_report
-from report.generate_pdf import generate_pentest_report
-from ai_module.summarize import VulnerabilityAnalyzer
-from config import config
+# Import existing modules with error handling
+try:
+    from scanner.run_zap_scan import scan_website
+    from parser.zap_parser import parse_zap_report
+    from report.generate_pdf import generate_pentest_report
+    from ai_module.summarize import VulnerabilityAnalyzer
+    from config import config
+    print("✅ All modules imported successfully")
+except ImportError as e:
+    print(f"❌ Import error: {e}")
+    # Create fallback functions
+    def scan_website(url):
+        return {'error': f'Scanner module not available: {e}'}
+    def parse_zap_report(file):
+        return None
+    def generate_pentest_report(data, ai, url):
+        return ""
+    class VulnerabilityAnalyzer:
+        def initialize_openai(self): return False
+        def analyze_vulnerabilities_batch(self, vulns): return {}
+    
+    class FakeConfig:
+        OPENAI_API_KEY = ""
+        REPORTS_DIR = Path("reports")
+    config = FakeConfig()
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -52,6 +71,10 @@ def health_check():
 def start_scan():
     """Start a security scan"""
     try:
+        print("📍 Scan request received")
+        print(f"📍 Python path: {sys.path}")
+        print(f"📍 Current directory: {os.getcwd()}")
+        print(f"📍 OpenAI key configured: {bool(config.OPENAI_API_KEY)}")
         data = request.json
         target_url = data.get('target_url')
         include_ai = data.get('include_ai', False)
@@ -126,9 +149,16 @@ def start_scan():
         })
         
     except Exception as e:
-        print(f"Scan error: {e}")
+        error_msg = str(e)
+        print(f"❌ Scan error: {error_msg}")
         traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
+        
+        # Return detailed error for debugging
+        return jsonify({
+            'error': error_msg,
+            'error_type': type(e).__name__,
+            'debug_info': f"Error in scan endpoint: {error_msg}"
+        }), 500
 
 @app.route('/api/download-report/<scan_id>', methods=['GET'])
 def download_report(scan_id):

@@ -85,8 +85,17 @@ class AutoPentApp {
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Scan failed');
+                // Get raw response text for debugging
+                const errorText = await response.text();
+                console.error('API Error Response:', errorText);
+                
+                try {
+                    const errorData = JSON.parse(errorText);
+                    throw new Error(errorData.error || 'Scan failed');
+                } catch (parseError) {
+                    // If it's not JSON, show the raw error
+                    throw new Error(`Server Error (${response.status}): ${errorText.substring(0, 200)}...`);
+                }
             }
 
             // Start progress monitoring
