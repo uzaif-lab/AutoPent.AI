@@ -1,32 +1,19 @@
-# AutoPent.AI - Web Application Dependencies
+# AutoPent.AI - Optimized for Vercel Serverless
 
-# Web Framework
+# Core Web Framework  
 flask==2.3.3
 flask-cors==4.0.0
 
-# Core scanning and security
+# Essential scanning
 requests==2.31.0
 beautifulsoup4==4.12.2
-lxml>=4.9.0
 
-# AI Integration (Optional)
+# AI Integration
 openai==1.3.0
+httpx>=0.25.0
 
-# PDF generation and reporting
+# PDF generation (lightweight)
 reportlab==4.0.4
 
-# Data processing
-pandas==2.0.3
-jinja2>=3.1.0
-
-# Utilities
-python-dateutil==2.8.2
-pyyaml>=6.0.0
-python-dotenv==1.0.0
-
-# Security and networking
-cryptography==41.0.7
-dnspython==2.4.2
-python-whois==0.8.0
-httpx>=0.25.0
-urllib3>=2.1.0 
+# Essential utilities
+python-dotenv==1.0.0 
