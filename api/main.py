@@ -85,10 +85,18 @@ def start_scan():
         ai_analyses = {}
         if include_ai and config.OPENAI_API_KEY:
             try:
+                print(f"🤖 Starting AI analysis for {len(parser.vulnerabilities)} vulnerabilities...")
                 if vulnerability_analyzer.initialize_openai():
                     ai_analyses = vulnerability_analyzer.analyze_vulnerabilities_batch(parser.vulnerabilities)
+                    print(f"✅ AI analysis completed: {len(ai_analyses)} analyses generated")
+                else:
+                    print("❌ Failed to initialize OpenAI")
             except Exception as e:
-                print(f"AI analysis failed: {e}")
+                print(f"❌ AI analysis failed: {e}")
+        elif not include_ai:
+            print("ℹ️ AI analysis not requested by user")
+        elif not config.OPENAI_API_KEY:
+            print("ℹ️ AI analysis not available - no OpenAI API key configured")
         
         # Step 5: Generate PDF report
         try:
@@ -97,10 +105,19 @@ def start_scan():
             print(f"PDF generation failed: {e}")
             report_path = ""
         
+        # Extract actual report timestamp from report path for download
+        actual_scan_id = timestamp
+        if report_path:
+            # Extract timestamp from report filename for accurate download
+            import re
+            match = re.search(r'(\d{8}_\d{6})', os.path.basename(report_path))
+            if match:
+                actual_scan_id = match.group(1)
+
         # Return results
         return jsonify({
             'status': 'success',
-            'scan_id': timestamp,
+            'scan_id': actual_scan_id,
             'target_url': target_url,
             'results': parsed_data,
             'report_path': report_path,

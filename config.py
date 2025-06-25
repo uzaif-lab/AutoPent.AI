@@ -30,7 +30,7 @@ class Config:
     
     # API Configuration
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-    OPENAI_MODEL = "gpt-4"
+    OPENAI_MODEL = "gpt-3.5-turbo"
     OPENAI_MAX_TOKENS = 1500
     OPENAI_TEMPERATURE = 0.3
     
@@ -86,21 +86,21 @@ class Config:
     - Risk Level: {risk}
     - CWE ID: {cwe_id}
     
-    Please provide a comprehensive analysis in the following format:
+    Please provide a comprehensive analysis in exactly this format:
     
-    1. **What is this vulnerability?**
-       Explain in simple terms what this security issue is.
+    **What is this vulnerability?**
+    Provide a clear, 2-3 sentence explanation of what this security issue is and how it occurs.
     
-    2. **Why is it dangerous?**
-       Describe the potential impact and what an attacker could do.
+    **Why is it dangerous?**
+    Explain in 2-3 sentences the specific risks, potential business impact, and what an attacker could achieve by exploiting this vulnerability.
     
-    3. **How to fix it?**
-       Provide specific, actionable remediation steps.
+    **How to fix it?**
+    Give specific, actionable steps to remediate this vulnerability. Include code examples or configuration changes where applicable.
     
-    4. **Prevention measures:**
-       Suggest best practices to prevent this in the future.
+    **Prevention measures:**
+    Suggest 3-4 best practices and security measures to prevent this vulnerability from occurring in the future.
     
-    Keep your response professional and technical but accessible.
+    Keep each section concise but informative. Focus on practical, actionable advice.
     """
     
     CVSS_CALCULATION_PROMPT = """

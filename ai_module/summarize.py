@@ -199,6 +199,14 @@ class VulnerabilityAnalyzer:
             if not explanation.strip():
                 explanation = response[:500] + "..." if len(response) > 500 else response
             
+            # Clean up any HTML tags to prevent PDF parsing errors
+            import re
+            explanation = re.sub(r'<[^>]*>', '', explanation.strip())
+            impact = re.sub(r'<[^>]*>', '', impact.strip())
+            remediation = re.sub(r'<[^>]*>', '', remediation.strip())
+            prevention = re.sub(r'<[^>]*>', '', prevention.strip())
+            cvss_suggestion = re.sub(r'<[^>]*>', '', cvss_suggestion.strip())
+            
             return AIAnalysis(
                 vulnerability_name=vuln_name,
                 explanation=explanation.strip(),

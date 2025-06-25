@@ -1,0 +1,56 @@
+{
+  "target": "https://www.indusrangers.com/",
+  "domain": "www.indusrangers.com",
+  "timestamp": "2025-06-25T14:58:16.897153",
+  "scan_type": "API-based Security Scan",
+  "findings": [
+    {
+      "name": "Missing Security Header: Content-Security-Policy",
+      "severity": "Medium",
+      "description": "Content Security Policy (CSP) header missing",
+      "evidence": "Header \"Content-Security-Policy\" not found in response",
+      "remediation": "Implement a Content Security Policy to prevent XSS attacks",
+      "cvss": 4.0
+    },
+    {
+      "name": "Missing Security Header: X-Frame-Options",
+      "severity": "Medium",
+      "description": "X-Frame-Options header missing - clickjacking protection",
+      "evidence": "Header \"X-Frame-Options\" not found in response",
+      "remediation": "Add \"X-Frame-Options: DENY\" or \"X-Frame-Options: SAMEORIGIN\" header",
+      "cvss": 4.0
+    },
+    {
+      "name": "Missing Security Header: Referrer-Policy",
+      "severity": "Low",
+      "description": "Referrer-Policy header missing",
+      "evidence": "Header \"Referrer-Policy\" not found in response",
+      "remediation": "Add \"Referrer-Policy: strict-origin-when-cross-origin\" header",
+      "cvss": 2.0
+    },
+    {
+      "name": "Information Disclosure - Server Header",
+      "severity": "Low",
+      "description": "Server header reveals technology information",
+      "evidence": "Server: Pepyaka",
+      "remediation": "Remove or obfuscate the Server header",
+      "cvss": 1.0
+    },
+    {
+      "name": "SSL Certificate Name Mismatch",
+      "severity": "High",
+      "description": "SSL certificate common name does not match domain",
+      "evidence": "Certificate CN: indusrangers.com, Domain: www.indusrangers.com",
+      "remediation": "Ensure SSL certificate matches the domain name",
+      "cvss": 8.0
+    },
+    {
+      "name": "Inline JavaScript Detected",
+      "severity": "Low",
+      "description": "Found 43 inline JavaScript blocks",
+      "evidence": "Inline scripts can pose XSS risks",
+      "remediation": "Move JavaScript to external files and implement CSP",
+      "cvss": 2.0
+    }
+  ]
+}
