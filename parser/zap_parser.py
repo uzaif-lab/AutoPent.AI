@@ -179,19 +179,42 @@ class ZapReportParser:
             if risk in risk_distribution:
                 risk_distribution[risk] += 1
         
+        # Calculate categories (grouping similar vulnerability types)
+        categories = {}
+        for vuln in self.vulnerabilities:
+            name = vuln.name.lower()
+            if 'header' in name:
+                categories['security_headers'] = categories.get('security_headers', 0) + 1
+            elif 'ssl' in name or 'certificate' in name:
+                categories['ssl_tls'] = categories.get('ssl_tls', 0) + 1
+            elif 'javascript' in name or 'script' in name:
+                categories['content_security'] = categories.get('content_security', 0) + 1
+            elif 'admin' in name or 'path' in name:
+                categories['access_control'] = categories.get('access_control', 0) + 1
+            elif 'csrf' in name.lower() or 'form' in name:
+                categories['authentication'] = categories.get('authentication', 0) + 1
+            else:
+                categories['other'] = categories.get('other', 0) + 1
+        
         return {
             'total_vulnerabilities': len(self.vulnerabilities),
             'risk_distribution': risk_distribution,
             'target_url': self.metadata.get('target_url', ''),
-            'scan_date': self.summary.get('scan_date', '')
+            'scan_date': self.summary.get('scan_date', ''),
+            'categories': categories,
+            'unique_urls': 1  # For single-URL scans
         }
     
     def export_to_dict(self) -> Dict[str, Any]:
         """Export parsed data to dictionary format"""
+        # Get statistics for UI compatibility
+        stats = self.get_statistics()
+        
         return {
             'metadata': self.metadata,
             'summary': self.summary,
-            'alerts': [self._vulnerability_to_dict(vuln) for vuln in self.vulnerabilities]
+            'alerts': [self._vulnerability_to_dict(vuln) for vuln in self.vulnerabilities],
+            'statistics': stats  # Add statistics for UI compatibility
         }
     
     def _vulnerability_to_dict(self, vuln: Vulnerability) -> Dict[str, Any]:

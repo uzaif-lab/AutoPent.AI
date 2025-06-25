@@ -1,7 +1,7 @@
 {
-  "target": "https://ssbcoaching.info/",
-  "domain": "ssbcoaching.info",
-  "timestamp": "2025-06-24T23:46:48.941199",
+  "target": "http://www.iphome.com/",
+  "domain": "www.iphome.com",
+  "timestamp": "2025-06-25T13:02:11.843278",
   "scan_type": "API-based Security Scan",
   "findings": [
     {
@@ -10,14 +10,6 @@
       "description": "HTTP Strict Transport Security (HSTS) header missing",
       "evidence": "Header \"Strict-Transport-Security\" not found in response",
       "remediation": "Add \"Strict-Transport-Security: max-age=31536000; includeSubDomains\" header",
-      "cvss": 4.0
-    },
-    {
-      "name": "Missing Security Header: Content-Security-Policy",
-      "severity": "Medium",
-      "description": "Content Security Policy (CSP) header missing",
-      "evidence": "Header \"Content-Security-Policy\" not found in response",
-      "remediation": "Implement a Content Security Policy to prevent XSS attacks",
       "cvss": 4.0
     },
     {
@@ -48,17 +40,25 @@
       "name": "Information Disclosure - Server Header",
       "severity": "Low",
       "description": "Server header reveals technology information",
-      "evidence": "Server: LiteSpeed",
+      "evidence": "Server: DPS/2.0.0-beta+sha-8b3aac9",
       "remediation": "Remove or obfuscate the Server header",
       "cvss": 1.0
     },
     {
-      "name": "Accessible Admin Paths",
-      "severity": "Medium",
-      "description": "Administrative paths are accessible",
-      "evidence": "Accessible paths: /wp-admin",
-      "remediation": "Secure administrative interfaces with proper authentication",
-      "cvss": 4.0
+      "name": "SSL Configuration Issue",
+      "severity": "High",
+      "description": "SSL/TLS configuration problem detected",
+      "evidence": "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'www.iphome.com'. (_ssl.c:1007)",
+      "remediation": "Fix SSL/TLS configuration and certificate issues",
+      "cvss": 7.5
+    },
+    {
+      "name": "Inline JavaScript Detected",
+      "severity": "Low",
+      "description": "Found 5 inline JavaScript blocks",
+      "evidence": "Inline scripts can pose XSS risks",
+      "remediation": "Move JavaScript to external files and implement CSP",
+      "cvss": 2.0
     }
   ]
 }

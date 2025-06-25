@@ -407,7 +407,9 @@ class StreamlitPentestUI:
             progress_bar.progress(90)
             status_text.text("📄 Generating PDF report...")
             
-            report_path = generate_pentest_report(scan_data, ai_analyses, target_url)
+            # Use parsed data for PDF generation (has 'alerts' key)
+            parsed_scan_data = parser.export_to_dict()
+            report_path = generate_pentest_report(parsed_scan_data, ai_analyses, target_url)
             
             # Step 6: Complete
             progress_bar.progress(100)
