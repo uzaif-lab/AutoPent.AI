@@ -46,8 +46,8 @@ class WebSecurityScanner:
         })
         # Disable SSL warnings for this session since we're security testing
         self.session.verify = False
-        # Reduce timeout for Vercel compatibility
-        self.timeout = 5
+        # Reduce timeout for Vercel compatibility (max 30s function time)
+        self.timeout = 3
         
     def scan_target(self, target_url: str) -> Dict[str, Any]:
         """
@@ -88,12 +88,12 @@ class WebSecurityScanner:
                 'cvss': 3.0
             })
         
-        # Priority 2: Basic SSL/HTTPS Check (simplified)
+        # Priority 2: Basic SSL/HTTPS Check (simplified for speed)
         print("🔒 Verifying HTTPS connectivity...")
         try:
             if target_url.startswith('https://'):
-                # Simple HTTPS connectivity test
-                response = requests.get(target_url, timeout=3, verify=False)
+                # Simple HTTPS connectivity test with shorter timeout
+                response = requests.get(target_url, timeout=2, verify=False)
                 if response.status_code < 500:
                     print("✓ HTTPS connectivity verified")
                 else:
@@ -117,10 +117,10 @@ class WebSecurityScanner:
         except Exception as e:
             print(f"HTTPS check failed: {e}")
         
-        # Priority 3: Content Analysis (if time allows)
+        # Priority 3: Quick content analysis (with strict timeout)
         print("📄 Quick content analysis...")
         try:
-            content_findings = self._analyze_content(target_url)
+            content_findings = self._analyze_content_quick(target_url)
             scan_results['findings'].extend(content_findings)
             print(f"✓ Content analysis: {len(content_findings)} findings")
         except Exception as e:
@@ -450,6 +450,43 @@ class WebSecurityScanner:
                 
         except Exception as e:
             logging.error(f"Vulnerability check error: {e}")
+            
+        return findings
+
+    def _analyze_content_quick(self, url: str) -> List[Dict]:
+        """Quick content analysis with strict timeout for Vercel"""
+        findings = []
+        
+        try:
+            # Quick response check only
+            response = self.session.get(url, timeout=2)
+            content = response.text[:10000]  # Limit content analysis to first 10KB
+            
+            # Quick security checks
+            if 'admin' in content.lower() or 'login' in content.lower():
+                findings.append({
+                    'name': 'Administrative Interface Detected',
+                    'severity': 'Low',
+                    'description': 'Administrative or login interfaces detected in page content',
+                    'evidence': 'Admin/login references found in HTML',
+                    'remediation': 'Ensure admin interfaces are properly secured',
+                    'cvss': 2.0
+                })
+            
+            # Check for common development indicators
+            if any(keyword in content.lower() for keyword in ['debug', 'test', 'dev', 'staging']):
+                findings.append({
+                    'name': 'Development Indicators Found',
+                    'severity': 'Low',
+                    'description': 'Development or debug indicators found in content',
+                    'evidence': 'Development keywords detected',
+                    'remediation': 'Remove development indicators from production',
+                    'cvss': 1.0
+                })
+                
+        except Exception as e:
+            print(f"Quick content analysis error: {e}")
+            # Don't add findings on error, just skip
             
         return findings
 

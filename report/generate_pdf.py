@@ -452,38 +452,44 @@ class PDFReportGenerator:
 
 def generate_pentest_report(scan_data: Dict, ai_analyses: Dict, target_url: str) -> str:
     """
-    Generate complete penetration testing report
-    Returns: Path to generated PDF file
+    Generate a complete penetration testing report
+    Returns the path to the generated PDF file
     """
     try:
-        # Generate filename
-        from urllib.parse import urlparse
-        parsed_url = urlparse(target_url)
-        domain = parsed_url.netloc.replace(':', '_').replace('.', '_')
+        logger.info("Starting PDF report generation...")
+        
+        # Generate timestamp for unique filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
-        # Determine scan type from scan data
-        scan_type = scan_data.get('scan_type', '')
-        if 'API-based' in scan_type:
-            filename = f"pentest_report_API_based_{domain}_{timestamp}.pdf"
-        else:
-            filename = f"pentest_report_{domain}_{timestamp}.pdf"
+        # Use /tmp for Vercel compatibility
+        reports_dir = Path("/tmp/reports")
+        reports_dir.mkdir(exist_ok=True)
         
-        output_path = config.REPORTS_DIR / filename
+        # Clean target URL for filename
+        url_clean = target_url.replace('https://', '').replace('http://', '').replace('/', '_').replace(':', '_')
+        if len(url_clean) > 50:  # Limit filename length
+            url_clean = url_clean[:50]
         
-        # Generate report
+        filename = f"pentest_report_{url_clean}_{timestamp}.pdf"
+        output_path = reports_dir / filename
+        
+        logger.info(f"Generating report: {output_path}")
+        
+        # Initialize PDF generator
         generator = PDFReportGenerator()
+        
+        # Generate the report
         success = generator.generate_report(scan_data, ai_analyses, str(output_path))
         
         if success:
-            logger.info(f"Report generated successfully: {output_path}")
+            logger.info(f"✅ PDF report generated successfully: {output_path}")
             return str(output_path)
         else:
-            logger.error("Failed to generate report")
+            logger.error("❌ Failed to generate PDF report")
             return ""
             
     except Exception as e:
-        logger.error(f"Report generation failed: {e}")
+        logger.error(f"❌ Error generating report: {e}")
         return ""
 
 if __name__ == "__main__":

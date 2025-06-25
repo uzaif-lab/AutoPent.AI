@@ -8,16 +8,14 @@ flask-cors==4.0.0
 requests==2.31.0
 beautifulsoup4==4.12.2
 
-# Optional enhanced domain analysis (lightweight)
-dnspython==2.4.2
-python-whois==0.8.0
-
 # AI Integration
 openai==1.3.0
-httpx>=0.25.0
 
 # PDF generation (lightweight)
 reportlab==4.0.4
 
 # Essential utilities
-python-dotenv==1.0.0 
+python-dotenv==1.0.0
+
+# Security and parsing
+urllib3==2.0.7 

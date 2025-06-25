@@ -1,93 +1,106 @@
-# AutoPent.AI - Web Application
+# AutoPent.AI 🛡️
 
-🛡️ **AI-Powered Security Scanner** - Professional web application ready for SaaS deployment.
+**AI-Powered Security Scanner** - Simple URL security scanning with AI analysis and downloadable reports.
 
-## 🚀 Quick Deploy to Vercel
+## What it does
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/AutoPent.AI)
+1. **Enter a URL** → Scans for security vulnerabilities
+2. **AI Analysis** → Intelligent vulnerability assessment (optional)
+3. **Download Report** → Professional PDF security report
 
-1. **Fork this repository**
-2. **Connect to Vercel**
-3. **Add environment variables:**
-   - `OPENAI_API_KEY` - Your OpenAI API key (optional for AI analysis)
-4. **Deploy!** ✨
+## Features
 
-## 🏗️ Project Structure
+- ✅ **HTTP Security Headers Analysis**
+- ✅ **SSL/TLS Configuration Check**
+- ✅ **Content Security Analysis**
+- ✅ **AI-Powered Risk Assessment** (with OpenAI API)
+- ✅ **Professional PDF Reports**
+- ✅ **Serverless-Ready** (Vercel deployment)
 
-```
-AutoPent.AI/
-├── api/                    # Flask API backend
-│   └── main.py            # Main API routes
-├── public/                # Frontend static files
-│   ├── index.html         # Web application
-│   ├── styles.css         # UI styles
-│   └── app.js            # Frontend logic
-├── scanner/              # Security scanning
-├── parser/               # Results parsing
-├── report/               # PDF generation
-├── ai_module/            # AI analysis
-├── vercel.json           # Vercel config
-└── requirements.txt      # Dependencies
-```
+## Quick Start
 
-## 🌟 Features
+### Local Development
 
-- **Security Scanning**: Headers, SSL/TLS, domain info, vulnerabilities
-- **AI Analysis**: OpenAI GPT-4 powered insights and recommendations
-- **PDF Reports**: Professional downloadable reports
-- **Modern UI**: Responsive design with real-time progress
+1. **Clone & Install**
 
-## ⚙️ Local Development
+   ```bash
+   git clone <your-repo>
+   cd AutoPent.AI
+   pip install -r requirements.txt
+   ```
 
-### Setup
+2. **Configure (Optional AI)**
 
-```bash
-# Install dependencies
-pip install -r requirements.txt
+   ```bash
+   cp env.example .env
+   # Edit .env and add your OPENAI_API_KEY
+   ```
 
-# Set environment (optional)
-export OPENAI_API_KEY="your_openai_api_key_here"
+3. **Run Locally**
+   ```bash
+   python run_web.py
+   ```
+   Visit: http://localhost:5000
 
-# Run the application
-python run_web.py
-```
+### Vercel Deployment
 
-Open `http://localhost:5000` in your browser.
+1. **Deploy to Vercel**
 
-## 🌐 Environment Variables
+   ```bash
+   vercel --prod
+   ```
 
-| Variable         | Required | Description                    |
-| ---------------- | -------- | ------------------------------ |
-| `OPENAI_API_KEY` | Optional | OpenAI API key for AI analysis |
+2. **Add Environment Variables**
 
-## 📱 API Endpoints
+   - Go to Vercel Dashboard → Project Settings → Environment Variables
+   - Add: `OPENAI_API_KEY` (for AI analysis)
 
-- `GET /` - Web application
+3. **Done!** Your scanner is live.
+
+## Environment Variables
+
+| Variable         | Required | Description                               |
+| ---------------- | -------- | ----------------------------------------- |
+| `OPENAI_API_KEY` | Optional | Enables AI-powered vulnerability analysis |
+
+## API Endpoints
+
+- `GET /` - Main interface
 - `POST /api/scan` - Start security scan
 - `GET /api/download-report/<scan_id>` - Download PDF report
 - `GET /api/health` - Health check
 
-## 🚀 Deployment
+## Tech Stack
 
-### Vercel (Recommended)
+- **Backend**: Flask + Python
+- **Frontend**: Vanilla JS + Modern CSS
+- **AI**: OpenAI API
+- **Reports**: ReportLab PDF
+- **Deployment**: Vercel Serverless
 
-- One-click deployment with the button above
-- Automatic HTTPS and global CDN
-- Serverless functions
+## Project Structure
 
-### Other Options
+```
+AutoPent.AI/
+├── api/main.py          # Flask API
+├── scanner/             # Security scanning
+├── ai_module/           # AI analysis
+├── report/              # PDF generation
+├── public/              # Frontend
+├── vercel.json          # Vercel config
+└── requirements.txt     # Dependencies
+```
 
-- **Railway**: `railway deploy`
-- **Heroku**: `git push heroku main`
+## Contributing
 
-## 📖 Usage
+This project is focused on one thing: **URL scanning with AI analysis and PDF reports**.
 
-1. **Enter target URL** - Website to scan
-2. **Enable AI analysis** (optional) - Get detailed insights
-3. **Start scan** - Comprehensive security assessment
-4. **View results** - Interactive vulnerability dashboard
-5. **Download report** - Professional PDF report
+To maintain simplicity:
+
+- Keep core functionality minimal
+- Optimize for speed and reliability
+- Ensure Vercel compatibility
 
 ---
 
-**Ready to deploy your security scanner? Start with Vercel!** 🚀
+**Made with ❤️ for simple, effective security scanning**
