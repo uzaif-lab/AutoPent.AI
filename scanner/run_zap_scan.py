@@ -7,9 +7,22 @@ API-based vulnerability scanning suitable for online hosting
 import requests
 import ssl
 import socket
-import dns.resolver
-import whois
 import json
+
+# Optional imports for enhanced domain analysis
+try:
+    import dns.resolver
+    DNS_AVAILABLE = True
+except ImportError:
+    DNS_AVAILABLE = False
+    print("Warning: dns.resolver not available. DNSSEC checks will be skipped.")
+
+try:
+    import whois
+    WHOIS_AVAILABLE = True
+except ImportError:
+    WHOIS_AVAILABLE = False
+    print("Warning: whois not available. Domain age checks will be skipped.")
 import asyncio
 import aiohttp
 from urllib.parse import urlparse, urljoin
@@ -236,56 +249,58 @@ class WebSecurityScanner:
         findings = []
         
         try:
-            # DNS Security checks
-            try:
-                # Check for DNSSEC
-                resolver = dns.resolver.Resolver()
-                resolver.flags = dns.flags.DO  # DNSSEC OK bit
-                
+            # DNS Security checks (only if dns module is available)
+            if DNS_AVAILABLE:
                 try:
-                    answer = resolver.resolve(domain, 'A')
-                    # If we got here without exception, check if DNSSEC is actually validated
-                    # This is a simplified check - in practice, DNSSEC validation is complex
-                    if not hasattr(answer.response, 'flags') or not (answer.response.flags & dns.flags.AD):
-                        findings.append({
-                            'name': 'DNSSEC Not Implemented',
-                            'severity': 'Low',
-                            'description': 'Domain does not implement DNSSEC',
-                            'evidence': 'DNSSEC validation not confirmed',
-                            'remediation': 'Implement DNSSEC for DNS security',
-                            'cvss': 2.0
-                        })
-                except dns.resolver.NoAnswer:
-                    pass
+                    # Check for DNSSEC
+                    resolver = dns.resolver.Resolver()
+                    resolver.flags = dns.flags.DO  # DNSSEC OK bit
+                    
+                    try:
+                        answer = resolver.resolve(domain, 'A')
+                        # If we got here without exception, check if DNSSEC is actually validated
+                        # This is a simplified check - in practice, DNSSEC validation is complex
+                        if not hasattr(answer.response, 'flags') or not (answer.response.flags & dns.flags.AD):
+                            findings.append({
+                                'name': 'DNSSEC Not Implemented',
+                                'severity': 'Low',
+                                'description': 'Domain does not implement DNSSEC',
+                                'evidence': 'DNSSEC validation not confirmed',
+                                'remediation': 'Implement DNSSEC for DNS security',
+                                'cvss': 2.0
+                            })
+                    except dns.resolver.NoAnswer:
+                        pass
+                    except Exception:
+                        # Don't report DNSSEC as missing if we can't properly check
+                        pass
+                        
                 except Exception:
-                    # Don't report DNSSEC as missing if we can't properly check
                     pass
-                    
-            except Exception:
-                pass
             
-            # WHOIS information (basic check)
-            try:
-                w = whois.whois(domain)
-                if w.creation_date:
-                    if isinstance(w.creation_date, list):
-                        creation_date = w.creation_date[0]
-                    else:
-                        creation_date = w.creation_date
-                    
-                    domain_age = (datetime.now() - creation_date).days
-                    
-                    if domain_age < 30:
-                        findings.append({
-                            'name': 'Recently Registered Domain',
-                            'severity': 'Low',
-                            'description': f'Domain registered recently ({domain_age} days ago)',
-                            'evidence': f'Creation date: {creation_date}',
-                            'remediation': 'Verify domain legitimacy for recently registered domains',
-                            'cvss': 1.0
-                        })
-            except Exception:
-                pass
+            # WHOIS information (basic check, only if whois module is available)
+            if WHOIS_AVAILABLE:
+                try:
+                    w = whois.whois(domain)
+                    if w.creation_date:
+                        if isinstance(w.creation_date, list):
+                            creation_date = w.creation_date[0]
+                        else:
+                            creation_date = w.creation_date
+                        
+                        domain_age = (datetime.now() - creation_date).days
+                        
+                        if domain_age < 30:
+                            findings.append({
+                                'name': 'Recently Registered Domain',
+                                'severity': 'Low',
+                                'description': f'Domain registered recently ({domain_age} days ago)',
+                                'evidence': f'Creation date: {creation_date}',
+                                'remediation': 'Verify domain legitimacy for recently registered domains',
+                                'cvss': 1.0
+                            })
+                except Exception:
+                    pass
                 
         except Exception as e:
             logging.error(f"Domain analysis error: {e}")
