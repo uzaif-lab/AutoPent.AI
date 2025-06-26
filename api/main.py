@@ -235,5 +235,13 @@ def not_found(error):
 def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
+# Export the app for Vercel
+def handler(request):
+    return app(request.environ, lambda status, headers: None)
+
+# For Vercel compatibility
+def application(environ, start_response):
+    return app(environ, start_response)
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000) 
