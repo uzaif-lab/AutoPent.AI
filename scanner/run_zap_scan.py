@@ -46,109 +46,65 @@ class WebSecurityScanner:
         })
         # Disable SSL warnings for this session since we're security testing
         self.session.verify = False
-        # Reduce timeout for Vercel compatibility (max 30s function time)
-        self.timeout = 3
+        self.timeout = 10
         
     def scan_target(self, target_url: str) -> Dict[str, Any]:
         """
-        Main scanning function optimized for serverless reliability
+        Main scanning function that performs comprehensive security analysis
         """
-        print(f"🔍 Starting serverless-optimized scan for: {target_url}")
+        print(f"🔍 Starting security scan for: {target_url}")
         
-        # Parse URL safely
-        try:
-            parsed_url = urlparse(target_url)
-            domain = parsed_url.netloc
-        except:
-            domain = target_url.replace('https://', '').replace('http://', '').split('/')[0]
+        # Parse URL
+        parsed_url = urlparse(target_url)
+        domain = parsed_url.netloc
         
         scan_results = {
             'target': target_url,
             'domain': domain,
             'timestamp': datetime.now().isoformat(),
-            'scan_type': 'Serverless Security Scan',
+            'scan_type': 'API-based Security Scan',
             'findings': []
         }
         
-        # Priority 1: HTTP Security Headers (most reliable and important)
-        print("📋 Analyzing HTTP security headers...")
         try:
+            # 1. HTTP Security Headers Analysis
+            print("📋 Analyzing HTTP security headers...")
             headers_findings = self._check_security_headers(target_url)
             scan_results['findings'].extend(headers_findings)
-            print(f"✓ Headers analysis: {len(headers_findings)} findings")
+            
+            # 2. SSL/TLS Certificate Analysis
+            print("🔒 Analyzing SSL/TLS configuration...")
+            ssl_findings = self._check_ssl_config(domain)
+            scan_results['findings'].extend(ssl_findings)
+            
+            # 3. Domain Information Gathering
+            print("🌐 Gathering domain information...")
+            domain_findings = self._analyze_domain(domain)
+            scan_results['findings'].extend(domain_findings)
+            
+            # 4. Content Security Analysis
+            print("📄 Analyzing page content...")
+            content_findings = self._analyze_content(target_url)
+            scan_results['findings'].extend(content_findings)
+            
+            # 5. Common Vulnerability Checks
+            print("🔎 Checking for common vulnerabilities...")
+            vuln_findings = self._check_common_vulnerabilities(target_url)
+            scan_results['findings'].extend(vuln_findings)
+            
+            print(f"✅ Scan completed. Found {len(scan_results['findings'])} findings.")
+            
         except Exception as e:
-            print(f"Headers analysis failed: {e}")
-            # Add fallback finding
+            logging.error(f"Scan error: {e}")
             scan_results['findings'].append({
-                'name': 'Security Headers Check Required',
-                'severity': 'Medium',
-                'description': 'Security headers analysis could not be completed',
-                'evidence': 'Manual verification recommended',
-                'remediation': 'Manually verify security headers implementation',
-                'cvss': 3.0
+                'name': 'Scan Error',
+                'severity': 'Info',
+                'description': f'Error during scanning: {str(e)}',
+                'evidence': '',
+                'remediation': 'Ensure the target URL is accessible and try again.',
+                'cvss': 0.0
             })
         
-        # Priority 2: Basic SSL/HTTPS Check (simplified for speed)
-        print("🔒 Verifying HTTPS connectivity...")
-        try:
-            if target_url.startswith('https://'):
-                # Simple HTTPS connectivity test with shorter timeout
-                response = requests.get(target_url, timeout=2, verify=False)
-                if response.status_code < 500:
-                    print("✓ HTTPS connectivity verified")
-                else:
-                    scan_results['findings'].append({
-                        'name': 'HTTP Response Issue',
-                        'severity': 'Medium',
-                        'description': f'HTTP response returned status {response.status_code}',
-                        'evidence': f'Status code: {response.status_code}',
-                        'remediation': 'Investigate server response issues',
-                        'cvss': 4.0
-                    })
-            else:
-                scan_results['findings'].append({
-                    'name': 'No HTTPS Detected',
-                    'severity': 'High',
-                    'description': 'Website not using HTTPS protocol',
-                    'evidence': f'URL scheme: {parsed_url.scheme}',
-                    'remediation': 'Implement HTTPS with valid SSL certificate',
-                    'cvss': 7.0
-                })
-        except Exception as e:
-            print(f"HTTPS check failed: {e}")
-        
-        # Priority 3: Quick content analysis (with strict timeout)
-        print("📄 Quick content analysis...")
-        try:
-            content_findings = self._analyze_content_quick(target_url)
-            scan_results['findings'].extend(content_findings)
-            print(f"✓ Content analysis: {len(content_findings)} findings")
-        except Exception as e:
-            print(f"Content analysis skipped: {e}")
-        
-        # Ensure minimum findings for valid report
-        if len(scan_results['findings']) < 2:
-            print("Adding baseline security findings...")
-            scan_results['findings'].extend([
-                {
-                    'name': 'Security Assessment Completed',
-                    'severity': 'Info',
-                    'description': 'Basic security assessment has been performed',
-                    'evidence': f'Target: {target_url}',
-                    'remediation': 'Consider comprehensive security testing',
-                    'cvss': 0.0
-                },
-                {
-                    'name': 'Security Best Practices Review',
-                    'severity': 'Low',
-                    'description': 'General security best practices should be reviewed',
-                    'evidence': 'Standard security recommendations apply',
-                    'remediation': 'Implement security headers, HTTPS, and regular security testing',
-                    'cvss': 2.0
-                }
-            ])
-        
-        print(f"✅ Serverless scan completed. Found {len(scan_results['findings'])} findings.")
         return scan_results
     
     def _check_security_headers(self, url: str) -> List[Dict]:
@@ -217,47 +173,75 @@ class WebSecurityScanner:
         return findings
     
     def _check_ssl_config(self, domain: str) -> List[Dict]:
-        """Analyze SSL/TLS configuration (simplified for serverless)"""
+        """Analyze SSL/TLS configuration"""
         findings = []
         
         try:
-            # Use HTTPS request to check SSL instead of raw socket connection
-            # This is more compatible with serverless environments
-            test_url = f"https://{domain}"
-            response = self.session.get(test_url, timeout=self.timeout)
-            
-            # If we get here, SSL is working
-            # Check for HTTP redirect (basic HTTPS enforcement check)
-            http_url = f"http://{domain}"
-            try:
-                http_response = self.session.get(http_url, timeout=self.timeout, allow_redirects=False)
-                if http_response.status_code not in [301, 302, 307, 308]:
-                    findings.append({
-                        'name': 'HTTP Not Redirected to HTTPS',
-                        'severity': 'Medium',
-                        'description': 'HTTP requests are not automatically redirected to HTTPS',
-                        'evidence': f'HTTP status: {http_response.status_code}',
-                        'remediation': 'Configure server to redirect all HTTP traffic to HTTPS',
-                        'cvss': 4.0
-                    })
-            except:
-                # If HTTP fails, that's actually good for security
-                pass
-                
+            # Check SSL certificate
+            context = ssl.create_default_context()
+            with socket.create_connection((domain, 443), timeout=self.timeout) as sock:
+                with context.wrap_socket(sock, server_hostname=domain) as ssock:
+                    cert = ssock.getpeercert()
+                    
+                    # Check certificate expiry
+                    not_after = datetime.strptime(cert['notAfter'], '%b %d %H:%M:%S %Y %Z')
+                    days_until_expiry = (not_after - datetime.now()).days
+                    
+                    if days_until_expiry < 30:
+                        severity = 'High' if days_until_expiry < 7 else 'Medium'
+                        findings.append({
+                            'name': 'SSL Certificate Expiring Soon',
+                            'severity': severity,
+                            'description': f'SSL certificate expires in {days_until_expiry} days',
+                            'evidence': f'Certificate expires: {not_after}',
+                            'remediation': 'Renew SSL certificate before expiration',
+                            'cvss': 7.0 if severity == 'High' else 5.0
+                        })
+                    
+                    # Check certificate subject
+                    subject = dict(x[0] for x in cert['subject'])
+                    cn = subject.get('commonName', '')
+                    
+                    # Check if domain matches CN (including wildcard certificates)
+                    domain_matches = False
+                    if cn == domain:
+                        domain_matches = True
+                    elif cn.startswith('*.'):
+                        # Wildcard certificate - check if domain matches
+                        wildcard_domain = cn[2:]  # Remove '*.'
+                        if domain == wildcard_domain or domain.endswith(f'.{wildcard_domain}'):
+                            domain_matches = True
+                    
+                    if not domain_matches:
+                        findings.append({
+                            'name': 'SSL Certificate Name Mismatch',
+                            'severity': 'High',
+                            'description': 'SSL certificate common name does not match domain',
+                            'evidence': f'Certificate CN: {cn}, Domain: {domain}',
+                            'remediation': 'Ensure SSL certificate matches the domain name',
+                            'cvss': 8.0
+                        })
+                        
         except ssl.SSLError as e:
             findings.append({
                 'name': 'SSL Configuration Issue',
                 'severity': 'High',
                 'description': 'SSL/TLS configuration problem detected',
-                'evidence': f'SSL Error: {str(e)}',
-                'remediation': 'Review SSL/TLS configuration and certificate validity',
-                'cvss': 8.0
+                'evidence': str(e),
+                'remediation': 'Fix SSL/TLS configuration and certificate issues',
+                'cvss': 7.5
             })
         except Exception as e:
-            # Don't add findings for connection issues in serverless environment
-            logging.error(f"SSL check error: {e}")
-            pass
-                        
+            if "443" in str(e):
+                findings.append({
+                    'name': 'No HTTPS Support',
+                    'severity': 'Medium',
+                    'description': 'Website does not support HTTPS',
+                    'evidence': 'Port 443 not accessible',
+                    'remediation': 'Implement HTTPS with valid SSL certificate',
+                    'cvss': 5.0
+                })
+                
         return findings
     
     def _analyze_domain(self, domain: str) -> List[Dict]:
@@ -453,108 +437,13 @@ class WebSecurityScanner:
             
         return findings
 
-    def _analyze_content_quick(self, url: str) -> List[Dict]:
-        """Quick content analysis with strict timeout for Vercel"""
-        findings = []
-        
-        try:
-            # Quick response check only
-            response = self.session.get(url, timeout=2)
-            content = response.text[:10000]  # Limit content analysis to first 10KB
-            
-            # Quick security checks
-            if 'admin' in content.lower() or 'login' in content.lower():
-                findings.append({
-                    'name': 'Administrative Interface Detected',
-                    'severity': 'Low',
-                    'description': 'Administrative or login interfaces detected in page content',
-                    'evidence': 'Admin/login references found in HTML',
-                    'remediation': 'Ensure admin interfaces are properly secured',
-                    'cvss': 2.0
-                })
-            
-            # Check for common development indicators
-            if any(keyword in content.lower() for keyword in ['debug', 'test', 'dev', 'staging']):
-                findings.append({
-                    'name': 'Development Indicators Found',
-                    'severity': 'Low',
-                    'description': 'Development or debug indicators found in content',
-                    'evidence': 'Development keywords detected',
-                    'remediation': 'Remove development indicators from production',
-                    'cvss': 1.0
-                })
-                
-        except Exception as e:
-            print(f"Quick content analysis error: {e}")
-            # Don't add findings on error, just skip
-            
-        return findings
-
 
 def scan_website(target_url: str, scan_options: Dict = None) -> Dict[str, Any]:
     """
-    Main function to scan a website with robust error handling for Vercel
+    Main function to scan a website for security vulnerabilities
     """
-    print(f"🚀 Starting bulletproof scan for: {target_url}")
-    
-    try:
-        # Initialize scanner
-        scanner = WebSecurityScanner()
-        
-        # Perform scan with timeout protection
-        result = scanner.scan_target(target_url)
-        
-        # Validate result
-        if not isinstance(result, dict):
-            print(f"❌ Scanner returned invalid type: {type(result)}")
-            raise ValueError(f"Scanner returned invalid type: {type(result)}")
-        
-        if not result.get('findings'):
-            print("❌ Scanner returned no findings")
-            # Create minimal finding to ensure report generation works
-            result['findings'] = [{
-                'name': 'Basic Security Assessment',
-                'severity': 'Info',
-                'description': 'Security scan completed successfully',
-                'evidence': f'Target: {target_url}',
-                'remediation': 'Review security best practices',
-                'cvss': 0.0
-            }]
-        
-        print(f"✅ Scan completed successfully with {len(result['findings'])} findings")
-        return result
-        
-    except Exception as e:
-        print(f"❌ Scan failed with error: {e}")
-        
-        # Return a fallback result instead of raising an exception
-        fallback_result = {
-            'target': target_url,
-            'domain': target_url.replace('https://', '').replace('http://', '').split('/')[0],
-            'timestamp': datetime.now().isoformat(),
-            'scan_type': 'Fallback Security Scan',
-            'findings': [
-                {
-                    'name': 'Basic Security Check',
-                    'severity': 'Info',
-                    'description': 'Basic security assessment performed (scanner had technical difficulties)',
-                    'evidence': f'Target: {target_url}, Error: {str(e)[:100]}...',
-                    'remediation': 'Consider comprehensive security testing',
-                    'cvss': 0.0
-                },
-                {
-                    'name': 'Security Best Practices Review',
-                    'severity': 'Low',
-                    'description': 'General security recommendations apply',
-                    'evidence': 'Standard security checklist',
-                    'remediation': 'Implement HTTPS, security headers, and regular security testing',
-                    'cvss': 2.0
-                }
-            ]
-        }
-        
-        print(f"✅ Fallback scan result created with {len(fallback_result['findings'])} findings")
-        return fallback_result
+    scanner = WebSecurityScanner()
+    return scanner.scan_target(target_url)
 
 
 if __name__ == "__main__":
